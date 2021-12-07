@@ -17,6 +17,8 @@ public class SwiftFlutterSecurityPlugin: NSObject, FlutterPlugin {
             getBundleMD5List(call: call, result: result)
         case "getCriptedJsonPath":
             getCriptedJsonPath(call: call, result: result)
+        case "amIJailBroken":
+            amIJailBroken(call: call, result: result)
         default:
             result(FlutterError(code: "genericError", message: "Generic Error", details: nil))
         }
@@ -79,6 +81,14 @@ public class SwiftFlutterSecurityPlugin: NSObject, FlutterPlugin {
             }
         } else {
             result(FlutterError(code: "MissingParameters", message: "One or more parameters are missing.", details: nil))
+        }
+    }
+
+    private func amIJailBroken(call: FlutterMethodCall, result: FlutterResult) {
+        if IOSSecuritySuite.amIJailbroken() {
+            result("jailBroken")
+        } else {
+            result("notJailBroken")
         }
     }
 }

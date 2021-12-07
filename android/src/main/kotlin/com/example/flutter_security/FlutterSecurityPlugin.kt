@@ -15,6 +15,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import java.security.MessageDigest
 import android.util.Log
+import com.scottyab.rootbeer.RootBeer
 
 /** FlutterSecurityPlugin */
 @Suppress("DEPRECATION")
@@ -37,11 +38,16 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
         if (call.method == "amITampered") {
             var sha1 = call.argument<String>("sha1")
             var signatureList = getApplicationSignature(context.packageName, result)
-
             if (signatureList.contains(sha1)) {
                 result.success("notTampered")
             } else {
                 result.success("tampered")
+            }
+        } else if (call.method == "amIJailBroken") {
+            if(RootBeer(context).isRooted()) {
+                result.success("jailBroken")
+            } else {
+                result.success("notJailBroken")
             }
         } else {
             result.notImplemented()
