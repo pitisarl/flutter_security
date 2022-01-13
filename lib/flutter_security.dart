@@ -10,7 +10,8 @@ import 'package:flutter_security/helpers/json_object.dart';
 import 'package:flutter_security/helpers/platform_errors.dart';
 import 'package:flutter_security/helpers/platform_options.dart';
 import 'package:flutter_security/helpers/response_codes.dart';
-import 'package:flutter_security/jailbreak/jailbreak_response.dart';
+import 'package:flutter_security/responses/debuggable_response.dart';
+import 'package:flutter_security/responses/jailbreak_response.dart';
 
 class FlutterSecurity {
   static const MethodChannel _channel = const MethodChannel('flutter_security');
@@ -159,5 +160,15 @@ class FlutterSecurity {
       return (await deviceInfoPlugin.iosInfo).isPhysicalDevice;
     }
     throw UnimplementedError("OS not supported");
+  }
+
+  /// Is the application in debug mode ?
+  /// Returns true if the application is in debug mode
+  static Future<DebuggableResponse> amIDebuggable() async {
+    try {
+      return DebuggableResponseExtension.fromString(await _channel.invokeMethod('amIDebuggable'));
+    } on PlatformException catch (e) {
+      return DebuggableResponseExtension.fromString(e.code);
+    }
   }
 }

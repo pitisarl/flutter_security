@@ -16,6 +16,7 @@ import android.os.Build
 import java.security.MessageDigest
 import android.util.Log
 import com.scottyab.rootbeer.RootBeer
+import android.os.Debug
 
 /** FlutterSecurityPlugin */
 @Suppress("DEPRECATION")
@@ -48,6 +49,12 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
                 result.success("jailBroken")
             } else {
                 result.success("notJailBroken")
+            }
+        } else if (call.method == "amIDebuggable") {
+            if(isDebuggable(context: context) || detectDebugger()) {
+                result.success("debbugable")
+            } else {
+                result.success("notDebuggable")
             }
         } else {
             result.notImplemented()
@@ -111,4 +118,15 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
         return String(hexChars)
     }
 
+    // is the app debuggable ?
+    // https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#checking-the-debuggable-flag-in-applicationinfo
+    fun isDebuggable(context: Context): Boolean {
+        return context.getApplicationContext().getApplicationInfo().flags and ApplicationInfo.FLAG_DEBUGGABLE !== 0
+    }
+
+    // Is the debugger connected ?
+    // https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#isdebuggerconnected
+    fun detectDebugger(): Boolean {
+        return Debug.isDebuggerConnected()
+    }
 }
