@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto_keys/crypto_keys.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_security/helpers/json_object.dart';
 import 'package:flutter_security/helpers/platform_errors.dart';
@@ -146,5 +147,17 @@ class FlutterSecurity {
     } on PlatformException catch (e) {
       return JailBreakResponseExtension.fromString(e.code);
     }
+  }
+
+  /// Is this a real physical phone/device ?
+  /// Returns true if it is a physical device, false otherwise
+  static Future<bool> amIAPhysicalDevice() async {
+    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      return (await deviceInfoPlugin.androidInfo).isPhysicalDevice ?? false;
+    } else if (Platform.isIOS) {
+      return (await deviceInfoPlugin.iosInfo).isPhysicalDevice;
+    }
+    throw UnimplementedError("OS not supported");
   }
 }

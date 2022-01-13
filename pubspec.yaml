@@ -14,6 +14,7 @@ dependencies:
   json_annotation: 4.4.0
   freezed_annotation: ^1.0.0
   crypto_keys: ^0.3.0
+  device_info_plus: ^3.2.1
 
 dev_dependencies:
   flutter_test:
