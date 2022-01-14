@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:crypto_keys/crypto_keys.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_security/helpers/json_object.dart';
 import 'package:flutter_security/helpers/platform_errors.dart';
@@ -164,9 +165,11 @@ class FlutterSecurity {
 
   /// Is the application in debug mode ?
   /// Returns true if the application is in debug mode
-  static Future<DebuggableResponse> amIDebuggable() async {
+  static Future<DebuggableResponse> amIDebugged() async {
     try {
-      return DebuggableResponseExtension.fromString(await _channel.invokeMethod('amIDebuggable'));
+      var amIDebugged = await _channel.invokeMethod('amIDebugged');
+      debugPrint("amIDebugged=$amIDebugged");
+      return DebuggableResponseExtension.fromString(amIDebugged);
     } on PlatformException catch (e) {
       return DebuggableResponseExtension.fromString(e.code);
     }

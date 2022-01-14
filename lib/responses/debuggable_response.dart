@@ -1,16 +1,16 @@
 enum DebuggableResponse {
-  debbugable,
-  notDebbugable,
+  debugged,
+  notDebugged,
   genericError,
 }
 
 extension DebuggableResponseExtension on DebuggableResponse {
   static DebuggableResponse fromString(String? response) {
     switch (response) {
-      case 'debbugable':
-        return DebuggableResponse.debbugable;
-      case 'notDebbugable':
-        return DebuggableResponse.notDebbugable;
+      case 'debugged':
+        return DebuggableResponse.debugged;
+      case 'notDebugged':
+        return DebuggableResponse.notDebugged;
       default:
         return DebuggableResponse.genericError;
     }

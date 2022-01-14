@@ -51,11 +51,11 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
             } else {
                 result.success("notJailBroken")
             }
-        } else if (call.method == "amIDebuggable") {
+        } else if (call.method == "amIDebugged") {
             if(isDebuggable(context) || detectDebugger()) {
-                result.success("debbugable")
+                result.success("debugged")
             } else {
-                result.success("notDebuggable")
+                result.success("notDebugged")
             }
         } else {
             result.notImplemented()
