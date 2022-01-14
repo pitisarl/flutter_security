@@ -2,6 +2,7 @@ package com.example.flutter_security
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -51,7 +52,7 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
                 result.success("notJailBroken")
             }
         } else if (call.method == "amIDebuggable") {
-            if(isDebuggable(context: context) || detectDebugger()) {
+            if(isDebuggable(context) || detectDebugger()) {
                 result.success("debbugable")
             } else {
                 result.success("notDebuggable")
