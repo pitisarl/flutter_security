@@ -40,6 +40,8 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
         if (call.method == "amITampered") {
             var sha1 = call.argument<String>("sha1")
             var signatureList = getApplicationSignature(context.packageName, result)
+            Log.d("Liste signatures", signatureList.toString())
+            Log.d("SHA1", sha1 ?: "Pas de SHA")
             if (signatureList.contains(sha1)) {
                 result.success("notTampered")
             } else {
