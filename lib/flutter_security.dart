@@ -174,4 +174,11 @@ class FlutterSecurity {
       return DebuggableResponseExtension.fromString(e.code);
     }
   }
+
+  /// Returns les signatures de l'application
+  static Future<String> signatures() async {
+      var signatures = await _channel.invokeMethod('signatures');
+      debugPrint("signatures=$signatures");
+      return signatures;
+  }
 }
