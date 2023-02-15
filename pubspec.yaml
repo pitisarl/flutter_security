@@ -11,13 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   freezed_annotation: ^2.2.0
-  crypto_keys: ^0.3.0
-  device_info_plus: ^3.2.4
+  crypto_keys: ^0.3.0+1
+  device_info_plus: ^8.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  freezed: ^2.2.1
+  freezed: ^2.3.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
