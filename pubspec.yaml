@@ -5,19 +5,19 @@ homepage: https://github.com/marcotrumpet/flutter_security
 
 environment:
   sdk: '>=2.18.2 <3.0.0'
-  flutter: ">=2.5.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  freezed_annotation: ^2.2.0
+  freezed_annotation: ^2.4.1
   crypto_keys: ^0.3.0+1
-  device_info_plus: ^8.1.0
+  device_info_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  freezed: ^2.3.2
+  freezed: ^2.5.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
