@@ -1,25 +1,23 @@
 name: flutter_security
 description: A flutter package that aim to take care of your mobile app security side.
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/marcotrumpet/flutter_security
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.20.0"
+  sdk: '>=2.18.2 <3.0.0'
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  json_serializable: 4.1.3
-  json_annotation: 4.0.1
-  freezed_annotation: ^0.14.2
-  crypto_keys: ^0.3.0
+  freezed_annotation: ^2.4.1
+  crypto_keys: ^0.3.0+1
+  device_info_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: 2.0.6
-  freezed: ^0.14.2
+  freezed: ^2.5.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

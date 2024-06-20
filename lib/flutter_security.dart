@@ -4,17 +4,21 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto_keys/crypto_keys.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_security/helpers/json_object.dart';
 import 'package:flutter_security/helpers/platform_errors.dart';
 import 'package:flutter_security/helpers/platform_options.dart';
 import 'package:flutter_security/helpers/response_codes.dart';
+import 'package:flutter_security/responses/debuggable_response.dart';
+import 'package:flutter_security/responses/jailbreak_response.dart';
 
 class FlutterSecurity {
   static const MethodChannel _channel = const MethodChannel('flutter_security');
 
   /// Returns an `ResponseSecurityCodes` enum.
-  /// Takes `iosSecurityOptions` and `androidSecurityOptions` as parameters
+  /// Takes [iosSecurityOptions] and [androidSecurityOptions] as parameters
   static Future<ResponseSecurityCodes> amITampered({
     required IosSecurityOptions? iosSecurityOptions,
     required AndroidSecurityOptions? androidSecurityOptions,
@@ -52,23 +56,16 @@ class FlutterSecurity {
 
     if (Platform.isIOS) {
       try {
-        if (iosSecurityOptions?.bundleId == null ||
-            iosSecurityOptions?.jsonFileName == null ||
-            iosSecurityOptions?.cryptographicKey == null)
+        if (iosSecurityOptions?.bundleId == null || iosSecurityOptions?.jsonFileName == null || iosSecurityOptions?.cryptographicKey == null)
           throw ResponseSecurityCodes.missingParametersError;
 
         arguments = iosSecurityOptions!.toJson();
 
-        final decryptedObject = await _getDecriptedObject(
-            arguments: arguments, iosSecurityOptions: iosSecurityOptions);
+        final decryptedObject = await _getDecriptedObject(arguments: arguments, iosSecurityOptions: iosSecurityOptions);
 
-        final nativeJsonObject = await _getNativeJsonObject(
-            decriptedObject: decryptedObject,
-            iosSecurityOptions: iosSecurityOptions);
+        final nativeJsonObject = await _getNativeJsonObject(decriptedObject: decryptedObject, iosSecurityOptions: iosSecurityOptions);
 
-        return !(await _areMD5matching(
-            decryptedObject: decryptedObject,
-            nativeJsonObject: nativeJsonObject));
+        return !(await _areMD5matching(decryptedObject: decryptedObject, nativeJsonObject: nativeJsonObject));
       } on PlatformException catch (e) {
         throw PlatformResponseCodes.fromString(e.code);
       }
@@ -80,8 +77,7 @@ class FlutterSecurity {
     required List<JsonObject>? decryptedObject,
     required List<JsonObject> nativeJsonObject,
   }) async {
-    final matchedList = decryptedObject?.where(
-        (e) => nativeJsonObject.contains((element) => element.path == e.path));
+    final matchedList = decryptedObject?.where((e) => nativeJsonObject.contains((element) => element.path == e.path));
 
     return matchedList?.length == decryptedObject?.length;
   }
@@ -96,11 +92,9 @@ class FlutterSecurity {
 
     final file = File(cryptedJsonPath!).readAsBytesSync();
 
-    var keyPair = KeyPair.symmetric(
-        SymmetricKey(keyValue: Uint8List.fromList(keyString.codeUnits)));
+    var keyPair = KeyPair.symmetric(SymmetricKey(keyValue: Uint8List.fromList(keyString.codeUnits)));
 
-    var decrypter =
-        keyPair.privateKey!.createEncrypter(algorithms.encryption.aes.gcm);
+    var decrypter = keyPair.privateKey!.createEncrypter(algorithms.encryption.aes.gcm);
 
     var decrypted = decrypter.decrypt(
       EncryptionResult(
@@ -112,8 +106,7 @@ class FlutterSecurity {
     final decryptedFileAsString = String.fromCharCodes(decrypted);
     final decodedObject = json.decode(decryptedFileAsString) as List<dynamic>;
 
-    final jsonObject =
-        decodedObject.map((e) => JsonObject.fromJson(e)).toList();
+    final jsonObject = decodedObject.map((e) => JsonObject.fromJson(e)).toList();
 
     return jsonObject;
   }
@@ -128,27 +121,64 @@ class FlutterSecurity {
 
     final updatedArguments = updatedIosSecurityOptions.toJson();
 
-    final jsonResult =
-        await _channel.invokeMethod('getBundleMD5List', updatedArguments);
+    final jsonResult = await _channel.invokeMethod('getBundleMD5List', updatedArguments);
 
     if (jsonResult == null) throw ResponseSecurityCodes.missingParametersError;
 
     final decodedJsonResult = json.decode(jsonResult) as List<dynamic>;
 
-    final jsonObjectList =
-        decodedJsonResult.map((e) => JsonObject.fromJson(e)).toList();
+    final jsonObjectList = decodedJsonResult.map((e) => JsonObject.fromJson(e)).toList();
 
     return jsonObjectList;
   }
 
-  static Future<String?> _getCriptedJsonPath(
-      Map<String, dynamic> arguments) async {
+  static Future<String?> _getCriptedJsonPath(Map<String, dynamic> arguments) async {
     try {
-      final String? path =
-          await _channel.invokeMethod('getCriptedJsonPath', arguments);
+      final String? path = await _channel.invokeMethod('getCriptedJsonPath', arguments);
       return path;
     } on PlatformException catch (e) {
       throw PlatformResponseCodes.fromString(e.code);
     }
+  }
+
+  /// Is this phone jailbroken ?
+  /// Returns a `JailBreakResponse` enum.
+  static Future<JailBreakResponse> amIJailBroken() async {
+    try {
+      return JailBreakResponseExtension.fromString(await _channel.invokeMethod('amIJailBroken'));
+    } on PlatformException catch (e) {
+      return JailBreakResponseExtension.fromString(e.code);
+    }
+  }
+
+  /// Is this a real physical phone/device ?
+  /// Returns true if it is a physical device, false otherwise
+  static Future<bool> amIAPhysicalDevice() async {
+    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      return (await deviceInfoPlugin.androidInfo).isPhysicalDevice ?? false;
+    } else if (Platform.isIOS) {
+      return (await deviceInfoPlugin.iosInfo).isPhysicalDevice;
+    }
+    throw UnimplementedError("OS not supported");
+  }
+
+  /// Is the application in debug mode ?
+  /// Returns true if the application is in debug mode
+  static Future<DebuggableResponse> amIDebugged() async {
+    try {
+      var amIDebugged = await _channel.invokeMethod('amIDebugged');
+      debugPrint("amIDebugged=$amIDebugged");
+      return DebuggableResponseExtension.fromString(amIDebugged);
+    } on PlatformException catch (e) {
+      return DebuggableResponseExtension.fromString(e.code);
+    }
+  }
+
+  /// Returns les signatures de l'application
+  static Future<String> signatures() async {
+      var signatures = await _channel.invokeMethod('signatures');
+      debugPrint("signatures=$signatures");
+      return signatures;
   }
 }
