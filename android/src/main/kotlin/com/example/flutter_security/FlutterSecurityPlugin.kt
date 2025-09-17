@@ -27,6 +27,7 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
+
     @get:JvmName("getAdapterContext")
     private lateinit var context: Context
 
@@ -46,13 +47,13 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
                 result.success("tampered")
             }
         } else if (call.method == "amIJailBroken") {
-            if(RootBeer(context).isRooted()) {
+            if (RootBeer(context).isRooted()) {
                 result.success("jailBroken")
             } else {
                 result.success("notJailBroken")
             }
         } else if (call.method == "amIDebugged") {
-            if(isDebuggable(context) || detectDebugger()) {
+            if (isDebuggable(context) || detectDebugger()) {
                 result.success("debugged")
             } else {
                 result.success("notDebugged")
@@ -76,16 +77,16 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 // New signature
                 val sig = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES).signingInfo
-                signatureList = if (sig.hasMultipleSigners()) {
+                signatureList = if (sig!!.hasMultipleSigners()) {
                     // Send all with apkContentsSigners
-                    sig.apkContentsSigners.map {
+                    sig!!.apkContentsSigners.map {
                         val digest = MessageDigest.getInstance("SHA")
                         digest.update(it.toByteArray())
                         bytesToHex(digest.digest())
                     }
                 } else {
                     // Send one with signingCertificateHistory
-                    sig.signingCertificateHistory.map {
+                    sig!!.signingCertificateHistory.map {
                         val digest = MessageDigest.getInstance("SHA")
                         digest.update(it.toByteArray())
                         bytesToHex(digest.digest())
@@ -94,7 +95,7 @@ class FlutterSecurityPlugin : FlutterPlugin, MethodCallHandler, FlutterActivity(
             } else {
 
                 val sig = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
-                signatureList = sig.map {
+                signatureList = sig!!.map {
                     val digest = MessageDigest.getInstance("SHA")
                     digest.update(it.toByteArray())
                     bytesToHex(digest.digest())
